@@ -3,16 +3,15 @@ from models import Job
 
 
 def save_job_to_db(db: Session, job_data: dict, source: str):
-    job_no = job_data.get("jobNo") or job_data.get("jobId")
+    job_id = job_data.get("jobNo") or job_data.get("jobId")
 
     job = None
-    if job_no:
-        job = db.query(Job).filter(Job.jobNo == job_no,
-                                   Job.source == source).first()
+    if job_id:
+        job = db.query(Job).filter(Job.jobNo == job_id).first()
 
     if not job:
         job = Job(
-            jobNo=job_no,
+            jobNo=job_id,
             title=job_data.get("jobName") or job_data.get("title"),
             description=job_data.get("description"),
             salary=job_data.get(
