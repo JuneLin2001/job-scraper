@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Card from "./components/Card.vue";
-
-interface Job {
-  id: number;
-  title: string;
-  salary: string;
-  company_name: string;
-  location: string;
-  link?: string;
-  description?: string;
-}
+import Card from "@/components/Card.vue";
+import type { Job } from "@/types/job";
 
 const jobs = ref<Job[]>([]);
 const loading = ref(true);

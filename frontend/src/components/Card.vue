@@ -1,13 +1,5 @@
 <script setup lang="ts">
-interface Job {
-  id: number;
-  title: string;
-  salary: string;
-  company_name: string;
-  location: string;
-  link?: string;
-  description?: string;
-}
+import type { Job } from "@/types/job";
 
 defineProps<{ job: Job }>();
 </script>
