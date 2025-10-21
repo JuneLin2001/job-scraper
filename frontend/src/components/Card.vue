@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  interface Job {
-    id: number;
-    title: string;
-    salary: string;
-    company_name: string;
-    location: string;
-    link?: string;
-    description?: string;
-  }
+interface Job {
+  id: number;
+  title: string;
+  salary: string;
+  company_name: string;
+  location: string;
+  link?: string;
+  description?: string;
+}
 
-  defineProps<{ job: Job }>();
+defineProps<{ job: Job }>();
 </script>
 
 <template>
@@ -30,7 +30,7 @@
 </template>
 
 <style scoped>
-  .read-the-docs {
-    color: #888;
-  }
+.read-the-docs {
+  color: #888;
+}
 </style>
