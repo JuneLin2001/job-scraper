@@ -33,3 +33,9 @@ def get_jobs(db: db_dependency, source: str | None = Query(None, description="�
         query = query.filter(Job.source == source)
     jobs = query.all()
     return {"count": len(jobs), "jobs": jobs}
+
+
+@router.delete("/", summary="清空職缺", status_code=status.HTTP_204_NO_CONTENT)
+def reset_all_jobs(db: db_dependency):
+    db.query(Job).delete()
+    db.commit()
