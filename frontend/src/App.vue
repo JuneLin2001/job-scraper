@@ -6,10 +6,15 @@ import type { Job } from "@/types/job";
 const jobs = ref<Job[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+const source = ref("104");
 
 const fetchJobs = async () => {
+  loading.value = true;
+  error.value = null;
   try {
-    const res = await fetch("http://localhost:8000/api/jobs/");
+    const res = await fetch(
+      `http://localhost:8000/api/jobs/?source=${source.value}`,
+    );
     if (!res.ok) throw new Error("Failed to fetch jobs");
     const data = await res.json();
     jobs.value = data.jobs;
@@ -29,7 +34,10 @@ onMounted(() => {
   <h1 class="mb-4 text-3xl font-bold underline">Job List</h1>
   <div v-if="loading">Loading...</div>
   <div v-if="error" class="text-red-500">{{ error }}</div>
-
+  <select v-model="source" @change="fetchJobs" class="mb-4 rounded border p-2">
+    <option value="104">104</option>
+    <option value="1111">1111</option>
+  </select>
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     <div
       v-for="job in jobs"
