@@ -20,7 +20,8 @@ def save_job_to_db(db: Session, job_data: dict, source: str):
                 "custName") or job_data.get("companyName"),
             location=job_data.get("jobAddrNoDesc") or job_data.get(
                 "workCity", {}).get("name"),
-            link=job_data.get("link", {}).get("job") or job_data.get("link"),
+            link=f"https://www.1111.com.tw/job/{job_id}" if source == "1111" else job_data.get(
+                "link", {}).get("job"),
             source=source
         )
         db.add(job)
