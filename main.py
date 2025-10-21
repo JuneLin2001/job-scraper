@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import source
+from routers import jobs, scrape
 import models
 from database import engine
 
@@ -13,4 +13,5 @@ async def root():
 models.Base.metadata.create_all(bind=engine)
 
 
-app.include_router(source.router)
+app.include_router(jobs.router)
+app.include_router(scrape.router)
