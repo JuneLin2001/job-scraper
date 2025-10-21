@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import JobCard from "@/components/Card/JobCard";
-import type { Job } from "@/types/job";
+import type { Job, JobSource } from "@/types/job";
 
 const App = () => {
-  const [source, setSource] = useState("104");
+  const [source, setSource] = useState<JobSource | "">("");
   const [jobData, setJobData] = useState([]);
 
   useEffect(() => {
@@ -29,7 +29,11 @@ const App = () => {
 
   return (
     <div className="flex flex-col items-center gap-6 py-8">
-      <select value={source} onChange={(e) => setSource(e.target.value)}>
+      <select
+        value={source}
+        onChange={(e) => setSource(e.target.value as JobSource)}
+      >
+        <option value="">All</option>
         <option value="104">104</option>
         <option value="1111">1111</option>
       </select>

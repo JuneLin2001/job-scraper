@@ -1,4 +1,4 @@
-type JobSource = "104" | "1111";
+export type JobSource = "104" | "1111";
 
 export interface Job {
   id: number;
