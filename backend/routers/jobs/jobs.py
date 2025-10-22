@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import Annotated
 from database import SessionLocal
-from models import Job
+from models import Job, Label
 from config import VALID_SOURCES
 
 router = APIRouter(
@@ -24,14 +24,15 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def get_jobs_paginated(
+def get_jobs(
     db: db_dependency,
     source: str | None = Query(None, description="職缺來源"),
     page: int = Query(1, ge=1, description="頁碼"),
     pagesize: int = Query(30, ge=1, le=100, description="每頁數量"),
-    search: str | None = Query(None, description="搜尋關鍵字")
+    search: str | None = Query(None, description="搜尋關鍵字"),
+    labels: str | None = Query(None, description="以逗號分隔標籤篩選")
 ):
-    query = db.query(Job)
+    query = db.query(Job).options(joinedload(Job.labels))
 
     if source:
         if source not in VALID_SOURCES:
@@ -49,6 +50,11 @@ def get_jobs_paginated(
                 Job.description.ilike(search_pattern)
             )
         )
+
+    if labels:
+        label_list = [l.strip() for l in labels.split(",") if l.strip()]
+        if label_list:
+            query = query.filter(Job.labels.any(Label.name.in_(label_list)))
 
     total = query.count()
     jobs = query.offset((page - 1) * pagesize).limit(pagesize).all()
@@ -70,13 +76,17 @@ def get_jobs_paginated(
         })
 
     return {
-        "page": page,
-        "pagesize": pagesize,
         "count": len(jobs),
         "jobs": job_list,
         "total": total,
         "total_pages": (total + pagesize - 1) // pagesize
     }
+
+
+@router.get("/labels", status_code=status.HTTP_200_OK)
+def get_all_labels(db: db_dependency):
+    labels = db.query(Label).all()
+    return {"labels": [label.name for label in labels]}
 
 
 @router.delete("/", summary="清空職缺", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,25 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useJobStore } from "@/store/useJobStore";
+import { useLabelStore } from "@/store/useLabelStore";
+import MultipleSelector from "@/components/ui/multiple-selector";
 
 const Searchbar = () => {
-  const { setSearchWord } = useJobStore();
+  const { setSearchWord, handleLabelsSearch } = useJobStore();
+  const { allLabels, fetchAllLabels } = useLabelStore();
   const [keyword, setKeyword] = useState("");
+  const [labels, setLabels] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchAllLabels();
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSearchWord(keyword);
+    handleLabelsSearch(labels.join(","));
   };
 
   return (
-    <form onSubmit={handleSearchSubmit} className="flex gap-2">
+    <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
       <input
         type="text"
-        placeholder="搜尋職缺或公司..."
+        placeholder="請輸入關鍵字..."
         className="rounded border px-2 py-1"
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
+      />
+      <MultipleSelector
+        defaultOptions={allLabels.map((label) => ({ label, value: label }))}
+        placeholder="標籤"
+        emptyIndicator={
+          <p className="text-center leading-10 text-gray-600 dark:text-gray-400">
+            no results found.
+          </p>
+        }
+        value={labels.map((label) => ({ label, value: label }))}
+        onChange={(selectedOptions) =>
+          setLabels(selectedOptions.map((o) => o.value))
+        }
       />
       <button
         type="submit"
