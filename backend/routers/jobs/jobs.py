@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Query, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from typing import Annotated
 from database import SessionLocal
@@ -27,7 +28,8 @@ def get_jobs_paginated(
     db: db_dependency,
     source: str | None = Query(None, description="職缺來源"),
     page: int = Query(1, ge=1, description="頁碼"),
-    pagesize: int = Query(30, ge=1, le=100, description="每頁數量")
+    pagesize: int = Query(30, ge=1, le=100, description="每頁數量"),
+    search: str | None = Query(None, description="搜尋關鍵字")
 ):
     query = db.query(Job)
 
@@ -37,6 +39,16 @@ def get_jobs_paginated(
                 status_code=400, detail=f"Source must be one of {VALID_SOURCES}"
             )
         query = query.filter(Job.source == source)
+
+    if search:
+        search_pattern = f"%{search}%"
+        query = query.filter(
+            or_(
+                Job.title.ilike(search_pattern),
+                Job.company_name.ilike(search_pattern),
+                Job.description.ilike(search_pattern)
+            )
+        )
 
     total = query.count()
     jobs = query.offset((page - 1) * pagesize).limit(pagesize).all()
