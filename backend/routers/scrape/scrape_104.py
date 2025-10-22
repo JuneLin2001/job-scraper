@@ -61,7 +61,7 @@ async def scrape_104_jobs(db: db_dependency):
 
             print(f"Scraping page {current_page}")
 
-            if current_page >= 10:
+            if current_page >= 3:
                 break
 
             current_page += 1

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -21,6 +21,7 @@ class Job(Base):
     salary = Column(String)
     company_name = Column(String)
     location = Column(String)
+    updated_at = Column(DateTime)
     link = Column(String)
 
     labels = relationship(
