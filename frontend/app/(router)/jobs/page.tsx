@@ -1,12 +1,10 @@
 import JobPagination from "@/components/Pagination/JobPagination";
-import JobCards from "@/components/Card/JobCards";
+import ShowJobs from "./ShowJobs";
 
 const Jobs = () => {
   return (
     <div className="flex flex-col items-center gap-6 py-8">
-      <div className="container flex w-full justify-center px-6">
-        <JobCards />
-      </div>
+      <ShowJobs />
       <JobPagination />
     </div>
   );
