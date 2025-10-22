@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Pagination,
   PaginationContent,
@@ -6,27 +8,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useJobStore } from "@/store/useJobStore";
 
-interface JobPaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}
+const JobPagination = () => {
+  const { currentPage, totalPages, handleCurrentPageChange } = useJobStore();
 
-const JobPagination: React.FC<JobPaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
   const handlePagePrevious = () => {
     if (currentPage > 1) {
-      onPageChange(currentPage - 1);
+      handleCurrentPageChange(currentPage - 1);
     }
   };
 
   const handlePageNext = () => {
     if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
+      handleCurrentPageChange(currentPage + 1);
     }
   };
 
