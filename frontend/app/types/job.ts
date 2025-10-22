@@ -9,4 +9,6 @@ export interface Job {
   location: string;
   source: JobSource;
   link?: string;
+  labels: string[];
+  updated_at: string;
 }

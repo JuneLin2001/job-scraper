@@ -16,7 +16,7 @@ interface JobCardProps {
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
-    <Card className="w-full max-w-md shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+    <Card className="w-full max-w-md shadow-md transition-all hover:-translate-y-1 hover:shadow-lg md:w-[360px]">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-gray-800">
           {job.title}
@@ -27,10 +27,30 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </CardHeader>
 
       <CardContent className="pb-4">
-        <p className="line-clamp-3 text-sm text-gray-600">{job.description}</p>
+        {/* <p className="line-clamp-3 text-sm text-gray-600">{job.description}</p> */}
+
         {job.salary && (
           <p className="mt-2 text-sm font-medium text-emerald-600">
             💰 {job.salary}
+          </p>
+        )}
+
+        {job.labels && job.labels.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {job.labels.map((label) => (
+              <span
+                key={label}
+                className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-800"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {job.updated_at && (
+          <p className="mt-2 text-xs text-gray-400">
+            更新時間：{new Date(job.updated_at).toLocaleString()}
           </p>
         )}
       </CardContent>

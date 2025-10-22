@@ -1,4 +1,3 @@
-from fastapi import Query, HTTPException
 from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -23,7 +22,7 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-@router.get("/", summary="取得職缺數量", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK)
 def get_jobs_paginated(
     db: db_dependency,
     source: str | None = Query(None, description="職缺來源"),
@@ -40,14 +39,29 @@ def get_jobs_paginated(
         query = query.filter(Job.source == source)
 
     total = query.count()
-
     jobs = query.offset((page - 1) * pagesize).limit(pagesize).all()
+
+    job_list = []
+    for job in jobs:
+        job_list.append({
+            "id": job.id,
+            "jobNo": job.jobNo,
+            "title": job.title,
+            "description": job.description,
+            "company_name": job.company_name,
+            "location": job.location,
+            "salary": job.salary,
+            "updated_at": job.updated_at,
+            "link": job.link,
+            "source": job.source,
+            "labels": [label.name for label in job.labels]
+        })
 
     return {
         "page": page,
         "pagesize": pagesize,
         "count": len(jobs),
-        "jobs": jobs,
+        "jobs": job_list,
         "total": total,
         "total_pages": (total + pagesize - 1) // pagesize
     }
