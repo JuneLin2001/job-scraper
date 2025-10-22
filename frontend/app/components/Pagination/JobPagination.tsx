@@ -1,52 +1,43 @@
 "use client";
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { useJobStore } from "@/store/useJobStore";
+import DefaultPagination from "./DefaultPagination";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const JobPagination = () => {
-  const { currentPage, totalPages, handleCurrentPageChange } = useJobStore();
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get("page") || 1);
+  const router = useRouter();
+
+  const { totalPages, handleCurrentPageChange } = useJobStore();
+
+  const handlePageChange = (page: number) => {
+    handleCurrentPageChange(page);
+    router.push(`?page=${page}`);
+  };
 
   const handlePagePrevious = () => {
     if (currentPage > 1) {
       handleCurrentPageChange(currentPage - 1);
+      router.push(`?page=${currentPage - 1}`);
     }
   };
 
   const handlePageNext = () => {
     if (currentPage < totalPages) {
       handleCurrentPageChange(currentPage + 1);
+      router.push(`?page=${currentPage + 1}`);
     }
   };
 
   return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious onClick={handlePagePrevious} />
-        </PaginationItem>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <PaginationItem key={index}>
-            <PaginationLink
-              isActive={index + 1 === currentPage}
-              onClick={handlePagePrevious}
-            >
-              {index + 1}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-
-        <PaginationItem>
-          <PaginationNext onClick={handlePageNext} />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+    <DefaultPagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      handlePageChange={handlePageChange}
+      handlePagePrevious={handlePagePrevious}
+      handlePageNext={handlePageNext}
+    />
   );
 };
 
