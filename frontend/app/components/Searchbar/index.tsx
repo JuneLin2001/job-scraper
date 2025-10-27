@@ -1,19 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useJobStore } from "@/store/useJobStore";
-import { useLabelStore } from "@/store/useLabelStore";
 import MultipleSelector from "@/components/ui/multiple-selector";
+import useFetchLabels from "@/hooks/useFetchLabels";
 
 const Searchbar = () => {
   const { setSearchWord, handleLabelsSearch } = useJobStore();
-  const { allLabels, fetchAllLabels } = useLabelStore();
+  const { allLabels } = useFetchLabels();
   const [keyword, setKeyword] = useState("");
   const [labels, setLabels] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchAllLabels();
-  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

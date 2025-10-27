@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, JSON, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -15,14 +15,14 @@ class Job(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     jobNo = Column(String, unique=True, index=True)
-    source = Column(String, nullable=False)
+    source = Column(JSON, default=[])
     title = Column(String)
     description = Column(String)
     salary = Column(String)
     company_name = Column(String)
     location = Column(String)
     updated_at = Column(DateTime)
-    link = Column(String)
+    links = Column(JSON, default=[])
 
     labels = relationship(
         "Label", secondary=job_label_table, back_populates="jobs")

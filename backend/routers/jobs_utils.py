@@ -2,20 +2,19 @@ from sqlalchemy.orm import Session
 from models import Job, Label
 from datetime import datetime
 from utils import extract_labels_from_description
+from sqlalchemy.orm.attributes import flag_modified
 
 
 def save_job_to_db(db: Session, job_data: dict, source: str):
-    job_id = job_data.get("jobNo") or job_data.get("jobId")
-    if not job_id:
+    job_title = job_data.get("jobName") or job_data.get("title")
+    company_name = job_data.get("custName") or job_data.get("companyName")
+    if not (job_title and company_name):
         return None
-
-    job = db.query(Job).filter(Job.jobNo == job_id).first()
 
     updated_at_str = job_data.get("updateAt")
     updated_at_timestamp = job_data.get(
         "interactionRecord", {}).get("lastProcessedResumeAtTime")
     updated_at = None
-
     if updated_at_timestamp:
         try:
             updated_at = datetime.fromtimestamp(updated_at_timestamp)
@@ -41,22 +40,44 @@ def save_job_to_db(db: Session, job_data: dict, source: str):
     else:
         salary = raw_salary
 
+    job_title_std = job_title.strip().lower()
+    company_name_std = company_name.strip().lower()
+    job = db.query(Job).filter(
+        Job.title.ilike(job_title_std),
+        Job.company_name.ilike(company_name_std)
+    ).first()
+
     if not job:
         job = Job(
-            jobNo=job_id,
-            title=job_data.get("jobName") or job_data.get("title"),
+            jobNo=job_data.get("jobNo") or job_data.get("jobId"),
+            title=job_title,
             description=description,
             salary=salary,
-            company_name=job_data.get(
-                "custName") or job_data.get("companyName"),
+            company_name=company_name,
             location=job_data.get("jobAddrNoDesc") or job_data.get(
                 "workCity", {}).get("name"),
-            link=f"https://www.1111.com.tw/job/{job_id}" if source == "1111" else job_data.get(
-                "link", {}).get("job"),
+            links=[f"https://www.1111.com.tw/job/{job_data.get('jobId')}"] if source == "1111" else [
+                job_data.get("link", {}).get("job")],
             updated_at=updated_at,
-            source=source
+            source=[source]
         )
         db.add(job)
+        db.commit()
+        db.refresh(job)
+    else:
+
+        new_link = None
+        if source == "1111" and job_data.get("jobId"):
+            new_link = f"https://www.1111.com.tw/job/{job_data.get('jobId')}"
+        elif source == "104" and job_data.get("link", {}).get("job"):
+            new_link = job_data.get("link", {}).get("job")
+
+        if source not in job.source:
+            job.source.append(source)
+            job.links.append(new_link)
+
+        flag_modified(job, "source")
+        flag_modified(job, "links")
         db.commit()
         db.refresh(job)
 

@@ -18,7 +18,7 @@ const JobList = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [fetchJobs]);
 
   const toggleExpand = (id: number) => {
     setExpandedJobId(expandedJobId === id ? null : id);
@@ -42,12 +42,11 @@ const JobList = () => {
                 className="cursor-pointer"
                 onClick={() => toggleExpand(job.id)}
               >
-                <TableCell>
-                  <Link href={job.link || ""} target="_blank">
-                    {job.title}
-                  </Link>
+                <TableCell className="max-w-40 truncate">{job.title}</TableCell>
+
+                <TableCell className="max-w-40 truncate">
+                  {job.company_name}
                 </TableCell>
-                <TableCell>{job.company_name}</TableCell>
                 <TableCell>{job.location}</TableCell>
                 <TableCell>{job.salary}</TableCell>
               </TableRow>
@@ -55,7 +54,20 @@ const JobList = () => {
               {expandedJobId === job.id && (
                 <TableRow className="bg-gray-50">
                   <TableCell colSpan={4} className="text-sm text-gray-600">
-                    <p>來源：{job.source}</p>
+                    <p>{job.title}</p>
+                    <p>{job.company_name}</p>
+                    <div className="flex gap-4">
+                      {job.links.map((link, index) => (
+                        <Link
+                          className="mr-1 mb-1 inline-block rounded-full bg-gray-200 px-2 py-0.5 text-xs"
+                          key={link}
+                          href={link}
+                          target="_blank"
+                        >
+                          查看{job.source[index]}職缺
+                        </Link>
+                      ))}
+                    </div>
                     {job.labels && job.labels.length > 0 && (
                       <p>
                         標籤：
@@ -73,7 +85,7 @@ const JobList = () => {
                       更新時間：
                       {job.updated_at}
                     </p>
-                    <p className="mt-1 line-clamp-4 max-w-96 truncate">
+                    <p className="mt-1 max-w-[calc(100vw-300px)] break-all whitespace-normal">
                       {job.description}
                     </p>
                   </TableCell>

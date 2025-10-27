@@ -7,8 +7,8 @@ export interface Job {
   salary: string;
   company_name: string;
   location: string;
-  source: JobSource;
-  link?: string;
+  source: JobSource[];
+  links: string[];
   labels: string[];
   updated_at: string;
 }

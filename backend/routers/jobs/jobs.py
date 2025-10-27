@@ -39,7 +39,7 @@ def get_jobs(
             raise HTTPException(
                 status_code=400, detail=f"Source must be one of {VALID_SOURCES}"
             )
-        query = query.filter(Job.source == source)
+        query = query.filter(Job.source.like(f'%"{source}"%'))
 
     if search:
         search_pattern = f"%{search}%"
@@ -70,16 +70,15 @@ def get_jobs(
             "location": job.location,
             "salary": job.salary,
             "updated_at": job.updated_at,
-            "link": job.link,
+            "links": job.links,
             "source": job.source,
             "labels": [label.name for label in job.labels]
         })
 
     return {
-        "count": len(jobs),
-        "jobs": job_list,
         "total": total,
-        "total_pages": (total + pagesize - 1) // pagesize
+        "total_pages": (total + pagesize - 1) // pagesize,
+        "jobs": job_list,
     }
 
 
@@ -87,6 +86,27 @@ def get_jobs(
 def get_all_labels(db: db_dependency):
     labels = db.query(Label).all()
     return {"labels": [label.name for label in labels]}
+
+
+@router.get("/both", summary="找出 104 和 1111 皆有的職缺")
+def get_jobs_in_both_sources(db: db_dependency):
+    jobs = db.query(Job).filter(
+        Job.source.like('%"104"%'),
+        Job.source.like('%"1111"%')
+    ).all()
+
+    return {
+        "count": len(jobs),
+        "jobs": [
+            {
+                "id": job.id,
+                "title": job.title,
+                "company_name": job.company_name,
+                "source": job.source,
+            }
+            for job in jobs
+        ]
+    }
 
 
 @router.delete("/", summary="清空職缺", status_code=status.HTTP_204_NO_CONTENT)

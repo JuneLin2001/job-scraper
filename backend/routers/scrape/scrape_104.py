@@ -22,8 +22,6 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 BASE_URL_104 = "https://www.104.com.tw/jobs/search/api/"
-
-
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 REFERER = "https://www.104.com.tw/"
 
@@ -37,33 +35,32 @@ async def scrape_104_jobs(db: db_dependency):
 
     saved_jobs = []
     current_page = 1
-    total = None
+    total_page = 1
 
-    async with httpx.AsyncClient() as client:
-        while True:
+    async with httpx.AsyncClient(verify=False) as client:
+        while current_page <= total_page:
+            print(f"📄 抓取第 {current_page} 頁...")
             PARAMS_104 = f"jobs?area={area}&jobcat={jobcat}&page={current_page}&pagesize={pagesize}"
             response = await client.get(f"{BASE_URL_104}{PARAMS_104}", headers=headers)
             data = response.json()
+
             jobs_list = data.get("data", [])
 
-            if total is None:
-                total = data.get("metadata", {}).get(
-                    "pagination", {}).get("total", 0)
-
-            if not jobs_list:
-                break
+            total_page = data.get("metadata", {}).get(
+                "pagination", {}).get("lastPage", 1)
 
             for job_data in jobs_list:
                 job = save_job_to_db(db, job_data, source="104")
-                db.commit()
-                db.refresh(job)
-                saved_jobs.append(job)
+                if job:
+                    saved_jobs.append(job)
 
-            print(f"Scraping page {current_page}")
+            print(f"✅ 第 {current_page} 頁完成。")
 
-            if current_page >= 3:
-                break
+            # if current_page > 10:
+            #     break
 
             current_page += 1
 
-    return {"count": len(saved_jobs), "total": total}
+    return {
+        "total_saved": len(saved_jobs),
+    }

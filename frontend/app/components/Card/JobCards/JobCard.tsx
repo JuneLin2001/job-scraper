@@ -56,18 +56,16 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between border-t pt-3">
-        <span className="text-xs text-gray-400">來源：{job.source}</span>
-
-        {job.link && (
-          <Link href={job.link} target="_blank" className="w-28">
+        {job.links.map((link, index) => (
+          <Link key={index} href={link || "#"} target="_blank" className="w-28">
             <Button
               variant="default"
               className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
             >
-              查看職缺
+              查看{job.source[index]}職缺
             </Button>
           </Link>
-        )}
+        ))}
       </CardFooter>
     </Card>
   );

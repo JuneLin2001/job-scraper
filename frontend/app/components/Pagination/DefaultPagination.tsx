@@ -1,6 +1,7 @@
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -22,22 +23,55 @@ const DefaultPagination: React.FC<DefaultPaginationProps> = ({
   handlePagePrevious,
   handlePageNext,
 }) => {
+  // 每次最多顯示 10 個頁碼
+  const maxVisiblePages = 10;
+  const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  const pages = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
+
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious onClick={handlePagePrevious} />
         </PaginationItem>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <PaginationItem key={index}>
+
+        {startPage > 1 && (
+          <>
+            <PaginationItem>
+              <PaginationLink onClick={() => handlePageChange(1)}>
+                1
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationEllipsis />
+          </>
+        )}
+
+        {pages.map((page) => (
+          <PaginationItem key={page}>
             <PaginationLink
-              isActive={index + 1 === currentPage}
-              onClick={() => handlePageChange(index + 1)}
+              isActive={page === currentPage}
+              onClick={() => handlePageChange(page)}
             >
-              {index + 1}
+              {page}
             </PaginationLink>
           </PaginationItem>
         ))}
+
+        {endPage < totalPages && (
+          <>
+            <PaginationEllipsis />
+            <PaginationItem>
+              <PaginationLink onClick={() => handlePageChange(totalPages)}>
+                {totalPages}
+              </PaginationLink>
+            </PaginationItem>
+          </>
+        )}
 
         <PaginationItem>
           <PaginationNext onClick={handlePageNext} />
