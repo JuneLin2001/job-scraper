@@ -96,8 +96,14 @@ def get_all_labels_with_counts(db: Session = Depends(get_db)):
         .group_by(Label.name)
         .all()
     )
+    total = db.query(func.count(job_label_table.c.job_id)).first()[0]
 
-    return {name: count for name, count in label_counts}
+    return {
+        "total": total,
+        "labels": [
+            {"name": name, "count": count}
+            for name, count in label_counts
+        ]}
 
 
 @router.get("/both", summary="找出 104 和 1111 皆有的職缺")
