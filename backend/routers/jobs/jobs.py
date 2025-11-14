@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status, Query, HTTPException
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session, joinedload
 from typing import Annotated
 from database import SessionLocal
-from models import Job, Label
+from models import Job, Label, job_label_table
 from config import VALID_SOURCES
 
 router = APIRouter(
@@ -86,6 +86,24 @@ def get_jobs(
 def get_all_labels(db: db_dependency):
     labels = db.query(Label).all()
     return {"labels": [label.name for label in labels]}
+
+
+@router.get("/labels/count", status_code=status.HTTP_200_OK)
+def get_all_labels_with_counts(db: Session = Depends(get_db)):
+    label_counts = (
+        db.query(Label.name, func.count(job_label_table.c.job_id))
+        .join(job_label_table, Label.id == job_label_table.c.label_id)
+        .group_by(Label.name)
+        .all()
+    )
+    total = db.query(func.count(job_label_table.c.job_id)).first()[0]
+
+    return {
+        "total": total,
+        "labels": [
+            {"name": name, "count": count}
+            for name, count in label_counts
+        ]}
 
 
 @router.get("/both", summary="找出 104 和 1111 皆有的職缺")

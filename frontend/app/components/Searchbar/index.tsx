@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useJobStore } from "@/store/useJobStore";
 import MultipleSelector from "@/components/ui/multiple-selector";
-import useFetchLabels from "@/hooks/useFetchLabels";
 
-const Searchbar = () => {
+interface SearchbarProps {
+  allLabels: string[];
+}
+
+const Searchbar: React.FC<SearchbarProps> = ({ allLabels }) => {
   const { setSearchWord, handleLabelsSearch } = useJobStore();
-  const { allLabels } = useFetchLabels();
   const [keyword, setKeyword] = useState("");
   const [labels, setLabels] = useState<string[]>([]);
 
