@@ -52,9 +52,10 @@ def get_jobs(
         )
 
     if labels:
-        label_list = [l.strip() for l in labels.split(",") if l.strip()]
-        if label_list:
-            query = query.filter(Job.labels.any(Label.name.in_(label_list)))
+        label_list = [label.strip()
+                      for label in labels.split(",") if label.strip()]
+        for label in label_list:
+            query = query.filter(Job.labels.any(Label.name == label))
 
     total = query.count()
     jobs = query.offset((page - 1) * pagesize).limit(pagesize).all()
