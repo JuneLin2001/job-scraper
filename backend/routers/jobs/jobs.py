@@ -30,7 +30,8 @@ def get_jobs(
     page: int = Query(1, ge=1, description="頁碼"),
     pagesize: int = Query(30, ge=1, le=100, description="每頁數量"),
     search: str | None = Query(None, description="搜尋關鍵字"),
-    labels: str | None = Query(None, description="以逗號分隔標籤篩選")
+    labels: str | None = Query(None, description="以逗號分隔標籤篩選"),
+    order_by_desc: bool = Query(True, description="是否使用 DESC 排序")
 ):
     query = db.query(Job).options(joinedload(Job.labels))
 
@@ -56,6 +57,11 @@ def get_jobs(
                       for label in labels.split(",") if label.strip()]
         for label in label_list:
             query = query.filter(Job.labels.any(Label.name == label))
+
+    if order_by_desc:
+        query = query.order_by(Job.updated_at.desc())
+    else:
+        query = query.order_by(Job.updated_at.asc())
 
     total = query.count()
     jobs = query.offset((page - 1) * pagesize).limit(pagesize).all()
